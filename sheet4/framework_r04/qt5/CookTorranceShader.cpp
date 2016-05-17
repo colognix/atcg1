@@ -48,7 +48,7 @@ CCookTorranceShader::Shade(const TTracingContext& tContext) const
 	RealType r_scp_NH = v3_N | v3_H;
 	RealType r_alpha = acos(r_scp_NH);
 	RealType r_costheta = v3_V | v3_N;
-	RealType r_scp_VH = v3_V | v3_H;	// V | H = L | H by contruction of H
+	RealType r_scp_VH = v3_V | v3_H;	// eigentlich V | H = L | H, stimmt aber irgendwie nicht immer
 	RealType r_scp_NL = v3_N | v3_L;
 	RealType r_scp_LH = v3_H | v3_L;
 
@@ -66,13 +66,7 @@ CCookTorranceShader::Shade(const TTracingContext& tContext) const
 	RealType r_gcDiff = r_g - r_scp_VH;
 	RealType r_F = 0.5 * r_gcDiff * r_gcDiff / (r_gcSum * r_gcSum)*(1 + pow((r_scp_VH * r_gcSum - 1.) / (r_scp_VH * r_gcDiff + 1.), 2));
 
-	//if (r_F < m_F0)
-	//	return result;
-
-	RealType r_CT = 1./M_PI * r_D * r_G * r_F / (r_scp_NL * r_costheta);
-
-	
-	
+	RealType r_CT = 1./M_PI * r_D * r_G * r_F / (r_scp_NL * r_costheta);	// mit 1/Pi anstatt 1/4 sieht es richtiger aus..
 	
 	if (r_F > m_F0)
 	{
@@ -81,12 +75,11 @@ CCookTorranceShader::Shade(const TTracingContext& tContext) const
 			m_colHighLight.green() + (tContext.colLightIntensity.green() - m_colHighLight.green())*c_colorIp,
 			m_colHighLight.blue() + (tContext.colLightIntensity.blue() - m_colHighLight.blue())*c_colorIp);
 		result *= r_CT;
-		result += (m_colDiffuse+m_colAmbient)*0.5 * r_G;
 	}
 	else
-		result = m_colHighLight*r_CT + m_colAmbient * r_G;
+		result = m_colHighLight*r_CT;
 	result *= tContext.colLightIntensity*r_costheta;
-	//result += tContext.colLightIntensity*m_colDiffuse*r_costheta;
+
 
 	return result;
 };
