@@ -66,7 +66,7 @@ CCookTorranceShader::Shade(const TTracingContext& tContext) const
 	RealType r_gcDiff = r_g - r_scp_VH;
 	RealType r_F = 0.5 * r_gcDiff * r_gcDiff / (r_gcSum * r_gcSum)*(1 + pow((r_scp_VH * r_gcSum - 1.) / (r_scp_VH * r_gcDiff + 1.), 2));
 
-	RealType r_CT = 1./M_PI * r_D * r_G * r_F / (r_scp_NL * r_costheta);	// mit 1/Pi anstatt 1/4 sieht es richtiger aus..
+	RealType r_CT = 1./M_PI * r_D * r_G * r_F / (r_scp_NL * r_costheta);	// mit 1/Pi anstatt 1/4 sieht es besser aus?
 	
 	if (r_F > m_F0)
 	{
@@ -79,7 +79,10 @@ CCookTorranceShader::Shade(const TTracingContext& tContext) const
 	else
 		result = m_colHighLight*r_CT;
 	result *= tContext.colLightIntensity*r_costheta;
-
+	result += tContext.colLightIntensity*r_costheta*(m_colDiffuse+m_colAmbient)*r_G*0.5*(1./M_PI);
+	// Mittel aus diffusem und ambient Licht, gewichtet mit der Wahrscheinlich nicht von Shadowing/Masking betroffen zu sein, und 1/pi wie im paper
+	// sieht schon ganz ok aus, ist aber irgendwie noch immer nicht ganz richtig
+	
 
 	return result;
 };
